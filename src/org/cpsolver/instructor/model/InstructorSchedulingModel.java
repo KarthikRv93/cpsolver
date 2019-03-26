@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.cpsolver.coursett.Constants;
+import org.cpsolver.coursett.Test;
 import org.cpsolver.coursett.model.TimeLocation;
 import org.cpsolver.ifs.assignment.Assignment;
 import org.cpsolver.ifs.criteria.Criterion;
@@ -30,6 +31,7 @@ import org.cpsolver.instructor.criteria.AttributePreferences;
 import org.cpsolver.instructor.criteria.BackToBack;
 import org.cpsolver.instructor.criteria.CoursePreferences;
 import org.cpsolver.instructor.criteria.InstructorPreferences;
+import org.cpsolver.instructor.criteria.OnlineClassRestriction;
 import org.cpsolver.instructor.criteria.SameInstructor;
 import org.cpsolver.instructor.criteria.DifferentLecture;
 import org.cpsolver.instructor.criteria.OriginalInstructor;
@@ -70,7 +72,7 @@ import org.dom4j.Element;
  *          <a href='http://www.gnu.org/licenses/'>http://www.gnu.org/licenses/</a>.
  */
 public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, TeachingAssignment> {
-    private static Logger sLog = Logger.getLogger(InstructorSchedulingModel.class);
+    private static org.apache.log4j.Logger sLogger = org.apache.log4j.Logger.getLogger(InstructorSchedulingModel.class);
     private DataProperties iProperties;
     private Set<Attribute.Type> iTypes = new HashSet<Attribute.Type>();
     private List<Instructor> iInstructors = new ArrayList<Instructor>();
@@ -83,6 +85,9 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
     public InstructorSchedulingModel(DataProperties properties) {
         super();
         iProperties = properties;
+        sLogger.info("-----------------------TESTING-----------------------------");
+        addCriterion(new OnlineClassRestriction());
+        sLogger.info("criteria size"+getCriteria().size()+"criteria class name"+getCriterion(OnlineClassRestriction.class));
         addCriterion(new AttributePreferences());
         addCriterion(new InstructorPreferences());
         addCriterion(new TeachingPreferences());
@@ -179,8 +184,13 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
     @Override
     public double getTotalValue(Assignment<TeachingRequest.Variable, TeachingAssignment> assignment) {
         double ret = 0;
-        for (Criterion<TeachingRequest.Variable, TeachingAssignment> criterion : getCriteria())
-            ret += criterion.getWeightedValue(assignment);
+        for (Criterion<TeachingRequest.Variable, TeachingAssignment> criterion : getCriteria()){
+            double returnValue = 0;
+            returnValue = criterion.getWeightedValue(assignment);
+            ret += returnValue;
+            sLogger.info("className"+ criterion.getName()+"getTotalValue"+returnValue);
+        }
+        sLogger.info("totalValue"+ ret);
         return ret;
     }
 
@@ -605,6 +615,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
             if (courseEl != null) {
                 Long courseId = Long.valueOf(courseEl.attributeValue("id"));
                 course = courses.get(courseId);
+                sLogger.error(course);
                 if (course == null) {
                     course = new Course(courseId, courseEl.attributeValue("name"));
                 }
@@ -773,8 +784,8 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
                         if (conf.isEmpty()) {
                             assignment.assign(0, ta);
                         } else {
-                            sLog.error("Unable to assign " + ta.getName() + " to " + variable.getName());
-                            sLog.error("Conflicts:" + ToolBox.dict2string(conflictConstraints(assignment, ta), 2));
+                            sLogger.error("Unable to assign " + ta.getName() + " to " + variable.getName());
+                            sLogger.error("Conflicts:" + ToolBox.dict2string(conflictConstraints(assignment, ta), 2));
                         }
                     }
         }

@@ -38,6 +38,7 @@ import org.cpsolver.ifs.assignment.Assignment;
 public class TeachingRequest {
     private long iRequestId;
     private Course iCourse;
+    private static org.apache.log4j.Logger sLogger = org.apache.log4j.Logger.getLogger(InstructorSchedulingModel.class);
     private float iLoad;
     private List<Section> iSections = new ArrayList<Section>();
     private List<Preference<Attribute>> iAttributePreferences = new ArrayList<Preference<Attribute>>();
@@ -351,6 +352,10 @@ public class TeachingRequest {
         return getCourse().equals(request.getCourse());
     }
     
+    public boolean onlineCourse() {
+        return getCourse().getCourseName().contains("ONLINE");
+    }
+    
     /**
      * Check if this request and the given one can be assigned to the same instructor without violating the same course constraint
      * @param request the other teaching request
@@ -373,6 +378,13 @@ public class TeachingRequest {
         if (!sameCourse(request)) return 0;
         return (isSameCourseRequired() ? 0 : getSameCoursePreference()) + (request.isSameCourseRequired() ? 0 : request.getSameCoursePreference());
     }
+    
+
+    public double onlineCoursePenalty() {
+        if (!onlineCourse()) return 0;
+        return 10000;
+    }
+
 
     /**
      * Check if this request overlaps with the given one
@@ -567,6 +579,7 @@ public class TeachingRequest {
             Variable tr = (Variable)o;
             return getRequest().getRequestId() == tr.getRequest().getRequestId() && getInstructorIndex() == tr.getInstructorIndex();
         }
+        
         
         @Override
         public String getName() {
