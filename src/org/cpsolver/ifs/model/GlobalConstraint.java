@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.cpsolver.ifs.assignment.Assignment;
+import org.cpsolver.instructor.constraints.InstructorConstraint;
+import org.cpsolver.instructor.model.TeachingAssignment;
 
 
 /**
@@ -39,7 +41,7 @@ import org.cpsolver.ifs.assignment.Assignment;
  * @param <T> Value
  */
 public abstract class GlobalConstraint<V extends Variable<V, T>, T extends Value<V, T>> extends Constraint<V, T> {
-
+    private static org.apache.log4j.Logger sLogger = org.apache.log4j.Logger.getLogger(GlobalConstraint.class);
     /** The list of variables of this constraint */
     @Override
     public List<V> variables() {
@@ -87,6 +89,7 @@ public abstract class GlobalConstraint<V extends Variable<V, T>, T extends Value
                 listener.constraintBeforeAssigned(assignment, iteration, this, value, conf);
         if (conf != null) {
             for (T conflictValue : conf) {
+                sLogger.info("conflicts : "+ ((TeachingAssignment)conflictValue).variable().getRequest().getCourse().getCourseName());
                 if (!conflictValue.equals(value))
                    assignment.unassign(iteration, conflictValue.variable());
             }

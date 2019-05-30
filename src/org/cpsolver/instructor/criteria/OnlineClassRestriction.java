@@ -24,7 +24,7 @@ public class OnlineClassRestriction extends InstructorSchedulingCriterion {
         double penalty = 0.0;
         int pairs = 0;
         if(!value.variable().getRequest().onlineCourse()){
-            sLog.info(value.variable().getRequest().getCourse().getCourseName().contains("ONLINE")+ "return0");
+            //sLog.info(value.variable().getRequest().getCourse().getCourseName().contains("ONLINE")+ "return0");
             return 0;
         }
         int onlineLoad = 2;
@@ -32,9 +32,9 @@ public class OnlineClassRestriction extends InstructorSchedulingCriterion {
             if(ta.variable().getRequest().getCourse().getCourseName().contains("ONLINE")){
                 if(value.getInstructor().getExternalId().equals("10"))
                     onlineLoad = 10;
-                sLog.info(ta.variable().getRequest().getCourse().getCourseName());
-                sLog.info("isOnline or not"+ta.variable().getRequest().getCourse().getCourseName().contains("ONLINE"));
-                sLog.info("penalty"+(pairs < onlineLoad ? 0.0 : 1000));
+                //sLog.info(ta.variable().getRequest().getCourse().getCourseName());
+                //sLog.info("isOnline or not"+ta.variable().getRequest().getCourse().getCourseName().contains("ONLINE"));
+                //sLog.info("penalty"+(pairs < onlineLoad ? 0.0 : 1000));
                 pairs++;
             }
         }

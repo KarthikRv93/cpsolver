@@ -86,8 +86,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
         super();
         iProperties = properties;
         sLogger.info("-----------------------TESTING-----------------------------");
-        addCriterion(new OnlineClassRestriction());
-        sLogger.info("criteria size"+getCriteria().size()+"criteria class name"+getCriterion(OnlineClassRestriction.class));
+        //addCriterion(new OnlineClassRestriction());
         addCriterion(new AttributePreferences());
         addCriterion(new InstructorPreferences());
         addCriterion(new TeachingPreferences());
@@ -176,7 +175,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
             if (assignment.getValue(clazz) != null)
                 assignedLoad += clazz.getRequest().getLoad();
         }
-        info.put("Assigned Load", getPerc(assignedLoad, totalLoad, 0) + "% (" + sDoubleFormat.format(assignedLoad) + " / " + sDoubleFormat.format(totalLoad) + ")");
+        //info.put("Assigned Load", getPerc(assignedLoad, totalLoad, 0) + "% (" + sDoubleFormat.format(assignedLoad) + " / " + sDoubleFormat.format(totalLoad) + ")");
 
         return info;
     }
@@ -188,9 +187,9 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
             double returnValue = 0;
             returnValue = criterion.getWeightedValue(assignment);
             ret += returnValue;
-            sLogger.info("className"+ criterion.getName()+"getTotalValue"+returnValue);
+            //sLogger.info("className"+ criterion.getName()+"getTotalValue"+returnValue);
         }
-        sLogger.info("totalValue"+ ret);
+        //sLogger.info("totalValue"+ ret);
         return ret;
     }
 
@@ -497,6 +496,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
         Map<String, Attribute.Type> types = new HashMap<String, Attribute.Type>();
         Map<Long, Attribute> attributes = new HashMap<Long, Attribute>();
         Map<Long, Long> parents = new HashMap<Long, Long>();
+        sLogger.info("-----------------------attributes-----------------------------");
         if (root.element("attributes") != null) {
             for (Iterator<?> i = root.element("attributes").elementIterator("type"); i.hasNext();) {
                 Element typeEl = (Element) i.next();
@@ -506,6 +506,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
                         "true".equalsIgnoreCase(typeEl.attributeValue("conjunctive", defaultConjunctive)),
                         "true".equalsIgnoreCase(typeEl.attributeValue("required", defaultRequired)));
                 addAttributeType(type);
+                //sLogger.info("typeel name : "+type );
                 if (type.getTypeName() != null)
                     types.put(type.getTypeName(), type);
                 for (Iterator<?> j = typeEl.elementIterator("attribute"); j.hasNext();) {
@@ -515,6 +516,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
                             attributeEl.attributeValue("name"),
                             type);
                     attributes.put(attribute.getAttributeId(), attribute);
+                    //sLogger.info("ATTR NAME : "+attribute.getAttributeName());
                     if (attributeEl.attributeValue("parent") != null)
                         parents.put(attribute.getAttributeId(), Long.parseLong(attributeEl.attributeValue("parent")));
                 }
@@ -556,8 +558,9 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
                     }
                     attribute = new Attribute(attributeId, f.attributeValue("name"), type);
                     attributes.put(attributeId, attribute);
-                    if (f.attributeValue("parent") != null)
+                    if (f.attributeValue("parent") != null){
                         parents.put(attribute.getAttributeId(), Long.parseLong(f.attributeValue("parent")));
+                    }
                 }
                 instructor.addAttribute(attribute);
             }
@@ -615,7 +618,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
             if (courseEl != null) {
                 Long courseId = Long.valueOf(courseEl.attributeValue("id"));
                 course = courses.get(courseId);
-                sLogger.error(course);
+                //sLogger.error(course);
                 if (course == null) {
                     course = new Course(courseId, courseEl.attributeValue("name"));
                 }
@@ -658,6 +661,7 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
                     sections,
                     Constants.preference2preferenceLevel(requestEl.attributeValue("sameCourse", defaultSameCourse)),
                     Constants.preference2preferenceLevel(requestEl.attributeValue("sameCommon", defaultSameCommon)));
+            
             requests.put(request.getRequestId(), request);
             for (Iterator<?> j = requestEl.elementIterator("attribute"); j.hasNext();) {
                 Element f = (Element) j.next();
@@ -676,6 +680,19 @@ public class InstructorSchedulingModel extends Model<TeachingRequest.Variable, T
                     if (f.attributeValue("parent") != null)
                         parents.put(attribute.getAttributeId(), Long.parseLong(f.attributeValue("parent")));
                 }
+                /*if(attribute.getType().equals("onlinePref")){
+                    if(!attribute.getAttributeName().isEmpty())
+                        request.setOnline(true);
+                        //sLogger.info(attribute+" online : "+ request.isOnline()+" number of online course : " + request.getNumberOfOCourses());
+                }
+                if(attribute.getType().equals("OnlineCourses")){
+                    if(!attribute.getAttributeName().isEmpty()){
+                        int currentAttr = Integer.parseInt(attribute.getAttributeName());
+                        int previousAttr = request.getNumberOfOCourses();
+                        request.setNumberOfOCourses( currentAttr > previousAttr ? currentAttr : previousAttr);
+                    }
+                }
+                sLogger.info(attribute);*/
                 request.addAttributePreference(new Preference<Attribute>(attribute, string2preference(f.attributeValue("preference"))));
             }
             for (Iterator<?> j = requestEl.elementIterator("instructor"); j.hasNext();) {

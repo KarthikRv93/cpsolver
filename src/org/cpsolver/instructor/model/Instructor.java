@@ -56,8 +56,27 @@ public class Instructor extends AbstractClassWithContext<TeachingRequest.Variabl
     private String iName;
     private int iPreference;
     private float iMaxLoad;
+    private boolean online = false;
+    private int numOnlineCourses = 0;
     private int iBackToBackPreference, iSameDaysPreference, iSameRoomPreference;
+
     
+    public int getNumOnlineCourses() {
+        return numOnlineCourses;
+    }
+
+    public void setNumOnlineCourses(int numOnlineCourses) {
+        this.numOnlineCourses = numOnlineCourses;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
     /**
      * Constructor
      * @param id instructor unique id
