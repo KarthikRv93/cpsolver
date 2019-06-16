@@ -54,23 +54,21 @@ public class InstructorConstraint extends GlobalConstraint<TeachingRequest.Varia
             TeachingAssignment value, Set<TeachingAssignment> conflicts) {
         Context context = value.getInstructor().getContext(assignment);
 
-        // sLogger.info((Attribute)value.variable().getRequest().getAttributePreferences().get(0).getTarget());
-        /*
-         * for(Preference<Attribute> p:
-         * value.variable().getRequest().getAttributePreferences()){
-         * if(value.variable().getRequest().onlineCourse()){
-         * sLogger.info(p.getTarget().toString()+value.variable().getRequest().
-         * getCourse().getCourseName()); } }
-         */
         for (Attribute p : value.getInstructor().getAttributes()) {
             if (p.getType().getTypeName().equals("onlinePref")) {
-                //sLogger.info(" instructor online : "+ context.getInstructor().getName());
                 value.getInstructor().setOnline(true);
-            } else if (value.getInstructor().isOnline() && p.getType().getTypeName().equals("onlineCourses")) {
-                value.getInstructor().setNumOnlineCourses(Integer.parseInt(p.getAttributeName()));
+            /*}else if (context.getInstructor().getExternalId().equals("10")){
+                value.getInstructor().setNumOnlineCourses(100);*/
+            }else if (value.getInstructor().isOnline()) {
+                if(p.getType().getTypeName().equals("onlineCourses")){
+                    value.getInstructor().setNumOnlineCourses(Integer.parseInt(p.getAttributeName()));
+                }
             }
-            //sLogger.info(" is online: " + value.getInstructor().isOnline() + "type : "+p.getType().getTypeName());
         }
+        if((value.getInstructor().getNumOnlineCourses() == 0) && (value.getInstructor().isOnline())){
+            value.getInstructor().setNumOnlineCourses((int)context.getInstructor().getMaxLoad());
+        }
+        
         // Check availability
         if (context.getInstructor().getTimePreference(value.variable().getRequest()).isProhibited()) {
             conflicts.add(value);       
@@ -108,8 +106,7 @@ public class InstructorConstraint extends GlobalConstraint<TeachingRequest.Varia
                 break;
             }
             if (ta.variable().getRequest().onlineCourse()) {
-                sLogger.info(" online course : "+ context.getInstructor().isOnline() + " number of OLC : "+ context.getInstructor().getNumOnlineCourses());
-                sLogger.info("count : " + count );
+                sLogger.info(context.getInstructor().getExternalId()+ " " + " number : "+ context.getInstructor().getNumOnlineCourses()+ " count : "+count);
                 if (count >=(context.getInstructor().getNumOnlineCourses()-1)) {
                     conflicts.add(ta);
                     break;
